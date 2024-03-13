@@ -1,4 +1,7 @@
 import 'dart:ui';
+import 'package:currency_converter/functions/fetchrates.dart';
+import 'package:currency_converter/models/ratesmodels.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -12,7 +15,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Color mainColor = Color(0xFF212936);
   Color secondaryColor = Color(0xFF2849E5);
+  final formkey = GlobalKey<FormState>();
+  late Future<RatesModel> result;
+  late Future<Map> result2;
+
   @override
+void initState() {
+    super.initState();
+    result=fetchrates();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: mainColor,
@@ -43,35 +55,23 @@ class _HomePageState extends State<HomePage> {
                   )
                 ],
               ),
-              Expanded(
-                  child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    TextField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        labelText: "Enter Amount",
-                        labelStyle: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          fontSize: 15,
-                          color: secondaryColor,
-                        ),
-                      ),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 20,),
-                  ],
+              SingleChildScrollView(
+                child: Form(key: formkey,
+                child: FutureBuilder<RatesModel>(
+                  future: result, 
+                  builder: (context,snapshot){
+                  if(snapshot.connectionState == ConnectionState.waiting)
+                  {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                      );
+                  }
+                  return Text(snapshot.data!.rates.toString(),
+                  );
+                }
+                  ),
                 ),
-              )),
+              ),
             ],
           ),
         ),
